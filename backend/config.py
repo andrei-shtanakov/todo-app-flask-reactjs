@@ -18,7 +18,9 @@ class Config(object):
     OPENAPI_SWAGGER_UI_PATH = "/docs"
     OPENAPI_SWAGGER_UI_URL = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
 
-
+    CORS_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    CORS_ALLOW_HEADERS = ["Content-Type", "Authorization"]
+    CORS_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, "data.db")
 
