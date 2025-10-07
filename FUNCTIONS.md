@@ -53,6 +53,114 @@ Notes:
   - Function: `create_app`
   - Registers blueprints and initializes `db`, `api`, `cors`, `jwt` from `flaskr/extensions.py`.
 
+#### Mermaid: Login/User Flow (sequence)
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant UI as SignInForm<br/>frontend/src/routes/landing/home/_components/sign-in/form.tsx
+  participant AX as axios.post<br/>SignInForm.onSubmit
+  participant AR as SignIn Route.post<br/>backend/flaskr/routes/auth_route.py: SignIn.post
+  participant AC as AuthController.sign_in<br/>backend/flaskr/controllers/auth_controller.py
+  participant JWT as JWTManager.create_access_token<br/>flask_jwt_extended
+  participant Store as useAuthStore.signIn<br/>frontend/src/stores/auth-store.ts
+  participant Router as navigate('/dashboard')<br/>react-router
+  participant Q as useGetTasksOnUserQuery<br/>frontend/src/services/queries/tasks.ts
+  participant API as getTasksOnUserAPI<br/>frontend/src/services/api/tasks.ts
+  participant TR as TasksOnUser.get<br/>backend/flaskr/routes/task_route.py
+  participant TC as TaskController.get_all_on_user<br/>backend/flaskr/controllers/task_controller.py
+  participant DB as SQLAlchemy Session<br/>backend/flaskr/db.py
+
+  UI->>AX: Submit email/password
+  AX->>AR: POST /api/v1/auth/sign-in
+  AR->>AC: AuthController.sign_in(data)
+  AC->>DB: Query UserModel by email
+  AC->>AC: check_password(...)
+  AC-->>AR: { token }
+  AR-->>AX: 200 OK
+  AX-->>UI: token
+  UI->>Store: signIn(token)
+  Store-->>Router: isLoggedIn = true
+  Router->>Q: mount dashboard
+  Q->>API: fetch tasks
+  API->>TR: GET /api/v1/tasks/user (Bearer token)
+  TR->>TC: get_all_on_user()
+  TC->>DB: join TaskModel, TagModel by user_id
+  TC-->>TR: tasks[]
+  TR-->>API: 200 tasks[]
+  API-->>Q: tasks[]
+  Q-->>UI: render tasks
+```
+
+#### Mermaid: Backend Architecture (flowchart)
+
+```mermaid
+flowchart LR
+  subgraph AppFactory["create_app() - backend/flaskr/__init__.py"]
+    EDB["db = SQLAlchemy - backend/flaskr/db.py"]
+    EAPI["api = Api - backend/flaskr/extensions.py"]
+    ECORS["cors = CORS - backend/flaskr/extensions.py"]
+    EJWT["jwt = JWTManager - backend/flaskr/extensions.py"]
+  end
+
+  subgraph Auth["Auth"]
+    AR["Route: /auth/sign-in - backend/flaskr/routes/auth_route.py: SignIn.post"]
+    AC["Controller: AuthController.sign_in - backend/flaskr/controllers/auth_controller.py"]
+    AS["Schema: SignInSchema - backend/flaskr/schemas/schema.py"]
+  end
+
+  subgraph Users["Users"]
+    UR["Routes - backend/flaskr/routes/user_route.py"]
+    UC["Controller: UserController - backend/flaskr/controllers/user_controller.py"]
+    US["Schema: UserSchema - backend/flaskr/schemas/schema.py"]
+    UM["Model: UserModel - backend/flaskr/models/user_model.py"]
+  end
+
+  subgraph Tasks["Tasks"]
+    TR["Routes - backend/flaskr/routes/task_route.py"]
+    TC["Controller: TaskController - backend/flaskr/controllers/task_controller.py"]
+    TS["Schemas: TaskSchema/UpdateTaskSchema - backend/flaskr/schemas/schema.py"]
+    TM["Model: TaskModel - backend/flaskr/models/task_model.py"]
+    TTag["Model: TagModel - backend/flaskr/models/tag_model.py"]
+  end
+
+  subgraph Tags["Tags"]
+    TgR["Routes - backend/flaskr/routes/tag_route.py"]
+    TgC["Controller: TagController - backend/flaskr/controllers/tag_controller.py"]
+    TgS["Schema: TagSchema - backend/flaskr/schemas/schema.py"]
+    TgM["Model: TagModel - backend/flaskr/models/tag_model.py"]
+  end
+
+  EAPI --> AR
+  EAPI --> UR
+  EAPI --> TR
+  EAPI --> TgR
+
+  AR --> AC
+  AR --> AS
+  UR --> UC
+  UR --> US
+  TR --> TC
+  TR --> TS
+  TgR --> TgC
+  TgR --> TgS
+
+  AC --> UM
+  UC --> UM
+  TC --> TM
+  TC --> TTag
+  TgC --> TgM
+
+  EDB -. session .- AC
+  EDB -. session .- UC
+  EDB -. session .- TC
+  EDB -. session .- TgC
+
+  EJWT --> AR
+  EJWT --> TR
+  EJWT --> UR
+```
+
 ---
 
 ### Files, Classes, Functions Table
