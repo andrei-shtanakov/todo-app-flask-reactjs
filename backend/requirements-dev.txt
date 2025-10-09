@@ -1,0 +1,49 @@
+# Development and Testing Dependencies for Flask Todo App Backend
+
+# Include production dependencies
+-r requirements.txt
+
+# Testing Framework
+pytest==8.3.3
+pytest-flask==1.3.0
+pytest-cov==4.1.0
+pytest-mock==3.14.0
+pytest-xdist==3.6.1
+pytest-env==1.1.3
+pytest-timeout==2.3.1
+
+# Test Data Generation
+factory-boy==3.3.1
+faker==30.8.2
+pytest-factoryboy==2.7.0
+
+# Time Mocking
+freezegun==1.5.1
+
+# Code Quality
+ruff==0.7.4
+black==24.10.0
+isort==5.13.2
+mypy==1.13.0
+
+# Type Stubs
+types-flask==1.1.6
+types-werkzeug==1.0.9
+sqlalchemy-stubs==0.4
+
+# Development Tools
+ipdb==0.13.13
+ipython==8.29.0
+watchdog==6.0.0
+
+# Coverage Reporting
+coverage[toml]==7.6.7
+
+# Security Scanning
+bandit==1.7.10
+safety==3.2.11
+
+# Documentation
+sphinx==8.1.3
+sphinx-rtd-theme==3.0.2
+
