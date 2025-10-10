@@ -26,4 +26,10 @@ class DevelopmentConfig(Config):
 
 
 class TestConfig(Config):
-    pass
+    """Configuration for testing environment."""
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    JWT_SECRET_KEY = 'test-secret-key-do-not-use-in-production'
+    WTF_CSRF_ENABLED = False
+    SERVER_NAME = 'localhost:5000'
