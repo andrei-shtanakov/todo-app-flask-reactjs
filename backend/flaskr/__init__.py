@@ -22,7 +22,10 @@ def create_app(test_config=None):
     db.init_app(app)
     migrate.init_app(app, db)
     api.init_app(app)
-    cors.init_app(app)
+    cors.init_app(app, 
+                  origins=app.config.get('CORS_ORIGINS', '*'),
+                  allow_headers=app.config.get('CORS_ALLOW_HEADERS'),
+                  methods=app.config.get('CORS_METHODS'))
     jwt.init_app(app)
 
     api.register_blueprint(auth_route, url_prefix="/api/v1")
